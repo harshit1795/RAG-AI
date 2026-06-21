@@ -63,7 +63,7 @@ The app will start and display URLs such as:
 - Remember to store the Gemini key as a Vercel/Netlify environment variable.
 
 ## License & Credits
-- This project is provided under the **MIT License**.
+- This project is provided under the **Google Gemini Free Usage License**.
 - Author: **Harshit Gola** – Data architect specializing in governed RAG pipelines.
 - LinkedIn: <a href="https://www.linkedin.com/in/harshitgola/" target="_blank">https://www.linkedin.com/in/harshitgola/</a>
 - Website: <a href="https://www.harshitgola.com/" target="_blank">https://www.harshitgola.com/</a>
