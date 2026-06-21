@@ -37,7 +37,7 @@ uv pip install -r requirement.txt
 ```
 
 ## Obtaining a Google Gemini API Key
-1. Open the **Google AI Studio**: https://ai.google.dev/
+1. Open the **Google AI Studio**: <a href="https://ai.google.dev/" target="_blank">https://ai.google.dev/</a>
 2. Click **Get API key** and follow the on‑screen prompts to create a new project (or select an existing one).
 3. Copy the generated key.
 4. In the Streamlit app’s left sidebar, paste the key into the **Authentication** field.
@@ -52,7 +52,7 @@ The app will start and display URLs such as:
 
 ## Deployment Options
 ### Render (Classic) – Static Site & Web Service
-1. Sign up at https://render.com and create a **New Web Service**.
+1. Sign up at <a href="https://render.com" target="_blank">https://render.com</a> and create a **New Web Service**.
 2. Connect your GitHub repository (or push the current folder to a new repo).
 3. Set the **Build Command** to `pip install -r requirement.txt`.
 4. Set the **Start Command** to `streamlit run App.py --server.port $PORT`.
@@ -65,9 +65,9 @@ The app will start and display URLs such as:
 ## License & Credits
 - This project is provided under the **MIT License**.
 - Author: **Harshit Gola** – Data architect specializing in governed RAG pipelines.
-- LinkedIn: https://www.linkedin.com/in/harshitgola/
-- Website: https://www.harshitgola.com/
-- Newsletter: [Source of Truth (SOT)](https://www.linkedin.com/newsletters/source-of-truth-sot-7437687249598763008/)
+- LinkedIn: <a href="https://www.linkedin.com/in/harshitgola/" target="_blank">https://www.linkedin.com/in/harshitgola/</a>
+- Website: <a href="https://www.harshitgola.com/" target="_blank">https://www.harshitgola.com/</a>
+- Newsletter: <a href="https://www.linkedin.com/newsletters/source-of-truth-sot-7437687249598763008/" target="_blank">Source of Truth (SOT)</a>
 
 ---
 *Happy hacking! 🚀*
