@@ -19,8 +19,9 @@ The UI includes a left‑hand sidebar where you can:
 
 ## Installation
 ```bash
-# Clone the repo (if you haven't already) and cd into the project folder
-cd "/Users/harshitgola/Projects/RAG Architecture (SOT)"
+# Clone the repo and cd into the project folder
+git clone https://github.com/harshit1795/RAG-AI.git
+cd RAG-AI
 
 # (Optional) Create a virtual environment
 python -m venv .venv
@@ -66,6 +67,7 @@ The app will start and display URLs such as:
 - Author: **Harshit Gola** – Data architect specializing in governed RAG pipelines.
 - LinkedIn: https://www.linkedin.com/in/harshitgola/
 - Website: https://www.harshitgola.com/
+- Newsletter: [Source of Truth (SOT)](https://www.linkedin.com/newsletters/source-of-truth-sot-7437687249598763008/)
 
 ---
 *Happy hacking! 🚀*
