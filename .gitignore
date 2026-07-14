@@ -39,3 +39,7 @@ Thumbs.db
 
 # Streamlit
 .streamlit/
+
+# Documentation (Markdown files) - exclude all except README
+*.md
+!README.md
