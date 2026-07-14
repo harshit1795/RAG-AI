@@ -4,6 +4,8 @@ import requests
 from pypdf import PdfReader
 from google import genai
 from google.genai import types
+import base64
+from pathlib import Path
 
 # --------------------------------------------------------
 # PAGE CONFIGURATION & ARCHITECTURE METADATA
@@ -14,11 +16,58 @@ st.set_page_config(
     layout="wide"
 )
 
+# --------------------------------------------------------
+# BACKGROUND IMAGE SETUP
+# --------------------------------------------------------
+def get_base64_image(image_path):
+    """Convert image to base64 for CSS embedding"""
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+# Add background image styling with hover effect
+bg_image_path = Path("Asstes/Delicate Arch landscape with moonlight.JPG")
+if bg_image_path.exists():
+    bg_image_base64 = get_base64_image(bg_image_path)
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), 
+                              url("data:image/jpg;base64,{bg_image_base64}");
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            transition: background-image 0.3s ease-in-out;
+        }}
+        
+        .stApp:hover {{
+            background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), 
+                              url("data:image/jpg;base64,{bg_image_base64}");
+        }}
+        
+        /* Rotate sidebar image 90 degrees clockwise and make it smaller */
+        .stImage img {{
+            transform: rotate(90deg) scale(0.6);
+            transition: transform 0.3s ease;
+            max-width: 60%;
+            margin: auto;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
 # Sidebar - Publisher & Configuration
 with st.sidebar:
     st.markdown("### 🌌 Source of Truth")
     
     with st.expander("📖 About Author", expanded=False):
+        # Add author image
+        author_image_path = Path("Asstes/Delicate Arch horizontal.JPG")
+        if author_image_path.exists():
+            st.image(str(author_image_path), use_container_width=True, caption="Delicate Arch")
+        
         st.markdown("**Publisher:** Harshit Gola  \n*Author: Source of Truth (SOT)*")
         st.markdown("**Contact:** [LinkedIn](https://www.linkedin.com/in/harshitgola/) | [Website](https://www.harshitgola.com/)")
         st.markdown("Harshit Gola is a data architect focusing on governed RAG pipelines. He builds AI‑enhanced solutions that combine enterprise data governance with large language models.")
@@ -35,7 +84,7 @@ with st.sidebar:
 
 # Main Header
 st.title("🌌 Governed RAG Architecture Pipeline")
-st.subheader("Issue #6 POC: Moving From Raw Ingestion to Controlled Contextual Trust")
+st.subheader("Issue #7 POC: Putting It All Together: A Governed RAG System in Practice | Raw Ingestion to Controlled Contextual Trust")
 st.markdown("---")
 
 # Guardrail for API Key
@@ -197,12 +246,19 @@ if "processed_files" not in st.session_state:
     st.session_state.processed_files = set()
 if "uploader_key" not in st.session_state:
     st.session_state.uploader_key = 0
+# Session state for layer previews (Educational feature)
+if "bronze_layer_data" not in st.session_state:
+    st.session_state.bronze_layer_data = []
+if "silver_layer_data" not in st.session_state:
+    st.session_state.silver_layer_data = []
 
 def reset_session():
     st.session_state.gold_layer_db = []
     st.session_state.chat_history = []
     st.session_state.processed_files = set()
     st.session_state.uploader_key += 1
+    st.session_state.bronze_layer_data = []
+    st.session_state.silver_layer_data = []
 
 st.sidebar.markdown("---")
 st.sidebar.button("🗑️ Start New Session", on_click=reset_session, key="btn_sidebar", use_container_width=True)
@@ -257,6 +313,8 @@ if uploaded_files:
                 st.write("✅ All selected files have already been processed.")
                 status.update(label="System Ready.", state="complete")
             else:
+                # Store Bronze layer data for preview
+                st.session_state.bronze_layer_data.extend(raw_chunks)
                 st.write(f"✅ **Bronze Layer Completed:** Extracted {len(raw_chunks)} raw asset segments.")
                 
                 # --- PHASE 2: SILVER LAYER (Semantic Chunking & Cleaning) ---
@@ -274,6 +332,8 @@ if uploaded_files:
                             refined_chunks.append({"source": chunk["source"], "text": joined_text})
                 
                 st.write(f"✅ **Silver Layer Completed:** Normalized data into {len(refined_chunks)} standardized chunks.")
+                # Store Silver layer data for preview
+                st.session_state.silver_layer_data.extend(refined_chunks)
                 
                 # --- PHASE 3: GOLD LAYER (Vector Transformations & Governance) ---
                 status.update(label="Vectorizing and validating context (Gold Layer)...")
@@ -299,8 +359,166 @@ if uploaded_files:
                 st.session_state.gold_layer_db.extend(gold_layer_cache)
                 st.write(f"✅ **Gold Layer Active:** Added {len(gold_layer_cache)} verified entities to system memory.")
                 status.update(label="Pipeline verification successful. System Ready.", state="complete")
+        
+        # ========================================================================
+        # EDUCATIONAL LAYER PREVIEW: See Data Transformation Across Layers
+        # ========================================================================
+        if st.session_state.bronze_layer_data or st.session_state.silver_layer_data or st.session_state.gold_layer_db:
+            st.markdown("---")
+            st.subheader("📊 Medallion Architecture: Data Layer Preview")
+            st.caption("*Explore how your data transforms through each maturity stage*")
+            
+            # Bronze Layer Preview
+            if st.session_state.bronze_layer_data:
+                with st.expander(f"🥉 Bronze Layer: Raw Data ({len(st.session_state.bronze_layer_data)} segments)", expanded=False):
+                    st.markdown("**Purpose:** Extract raw, unprocessed text from source documents")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.metric("Total Segments", len(st.session_state.bronze_layer_data))
+                    with col2:
+                        avg_length = sum(len(chunk["text"]) for chunk in st.session_state.bronze_layer_data) / len(st.session_state.bronze_layer_data)
+                        st.metric("Avg Characters", f"{int(avg_length):,}")
+                    
+                    st.markdown("**Sample Data:**")
+                    for i, chunk in enumerate(st.session_state.bronze_layer_data[:3]):
+                        st.text_area(
+                            f"Sample {i+1} - {chunk['source']}", 
+                            chunk['text'][:500] + ("..." if len(chunk['text']) > 500 else ""),
+                            height=100,
+                            key=f"bronze_{i}"
+                        )
+            
+            # Silver Layer Preview
+            if st.session_state.silver_layer_data:
+                with st.expander(f"🥈 Silver Layer: Cleaned & Chunked Data ({len(st.session_state.silver_layer_data)} chunks)", expanded=False):
+                    st.markdown("**Purpose:** Normalize text, apply semantic chunking, and prepare for vectorization")
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.metric("Total Chunks", len(st.session_state.silver_layer_data))
+                    with col2:
+                        avg_length = sum(len(chunk["text"]) for chunk in st.session_state.silver_layer_data) / len(st.session_state.silver_layer_data)
+                        st.metric("Avg Characters", f"{int(avg_length):,}")
+                    with col3:
+                        unique_sources = len(set(chunk["source"] for chunk in st.session_state.silver_layer_data))
+                        st.metric("Unique Sources", unique_sources)
+                    
+                    st.markdown("**Sample Data:**")
+                    for i, chunk in enumerate(st.session_state.silver_layer_data[:3]):
+                        st.text_area(
+                            f"Chunk {i+1} - {chunk['source']}", 
+                            chunk['text'][:400] + ("..." if len(chunk['text']) > 400 else ""),
+                            height=100,
+                            key=f"silver_{i}"
+                        )
+            
+            # Gold Layer Preview
+            if st.session_state.gold_layer_db:
+                with st.expander(f"🥇 Gold Layer: Vectorized & Governed Data ({len(st.session_state.gold_layer_db)} embeddings)", expanded=False):
+                    st.markdown("**Purpose:** Transform text into vector embeddings for semantic search and retrieval")
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.metric("Total Embeddings", len(st.session_state.gold_layer_db))
+                    with col2:
+                        vector_dim = len(st.session_state.gold_layer_db[0]["embedding"]) if st.session_state.gold_layer_db else 0
+                        st.metric("Vector Dimensions", vector_dim)
+                    with col3:
+                        unique_sources = len(set(item["source"] for item in st.session_state.gold_layer_db))
+                        st.metric("Unique Sources", unique_sources)
+                    
+                    st.markdown("**Sample Data with Embeddings:**")
+                    for i, item in enumerate(st.session_state.gold_layer_db[:3]):
+                        st.markdown(f"**Sample {i+1}** - `{item['source']}`")
+                        st.text_area(
+                            "Text Content:", 
+                            item['text'][:300] + ("..." if len(item['text']) > 300 else ""),
+                            height=80,
+                            key=f"gold_text_{i}"
+                        )
+                        st.code(f"Vector Preview (first 10 dims): {item['embedding'][:10]}", language="python")
+                        st.markdown("---")
+
 
 st.markdown("---")
+
+# --------------------------------------------------------
+# DATA FLOW VISUALIZATION (Educational Feature)
+# --------------------------------------------------------
+if st.session_state.bronze_layer_data or st.session_state.silver_layer_data or st.session_state.gold_layer_db:
+    st.header("🔄 Medallion Architecture: Data Transformation Visualization")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("### 🥉 Bronze")
+        st.caption("**Raw Extraction**")
+        if st.session_state.bronze_layer_data:
+            st.metric("Segments", len(st.session_state.bronze_layer_data))
+            total_chars = sum(len(chunk["text"]) for chunk in st.session_state.bronze_layer_data)
+            st.metric("Total Characters", f"{total_chars:,}")
+            st.success("✅ Active")
+        else:
+            st.info("No data")
+    
+    with col2:
+        st.markdown("### 🥈 Silver")
+        st.caption("**Cleaned & Chunked**")
+        if st.session_state.silver_layer_data:
+            st.metric("Chunks", len(st.session_state.silver_layer_data))
+            if st.session_state.bronze_layer_data:
+                ratio = len(st.session_state.silver_layer_data) / len(st.session_state.bronze_layer_data)
+                st.metric("Expansion Factor", f"{ratio:.2f}x")
+            st.success("✅ Active")
+        else:
+            st.info("No data")
+    
+    with col3:
+        st.markdown("### 🥇 Gold")
+        st.caption("**Vectorized & Governed**")
+        if st.session_state.gold_layer_db:
+            st.metric("Embeddings", len(st.session_state.gold_layer_db))
+            vector_dim = len(st.session_state.gold_layer_db[0]["embedding"]) if st.session_state.gold_layer_db else 0
+            st.metric("Vector Dimensions", vector_dim)
+            st.success("✅ Active")
+        else:
+            st.info("No data")
+    
+    # Data Flow Diagram
+    st.markdown("---")
+    st.markdown("#### 📈 Data Flow Metrics")
+    
+    flow_data = {
+        "Layer": ["Bronze", "Silver", "Gold"],
+        "Records": [
+            len(st.session_state.bronze_layer_data),
+            len(st.session_state.silver_layer_data),
+            len(st.session_state.gold_layer_db)
+        ]
+    }
+    
+    st.markdown(f"""
+    ```
+    Bronze ({flow_data['Records'][0]} segments) 
+       │
+       ├─→ Raw extraction from source files
+       ├─→ Unprocessed, as-is content
+       │
+       ▼
+    Silver ({flow_data['Records'][1]} chunks)
+       │
+       ├─→ Text normalization (whitespace, newlines)
+       ├─→ Semantic chunking (150-word windows)
+       ├─→ Quality filtering (min 50 chars)
+       │
+       ▼
+    Gold ({flow_data['Records'][2]} embeddings)
+       │
+       ├─→ Vector embedding generation
+       ├─→ Semantic search enablement
+       └─→ Context retrieval & governance
+    ```
+    """)
+    
+    st.markdown("---")
 
 # --------------------------------------------------------
 # GOVERNED REASONING & CHAT INTERFACE
