@@ -7,9 +7,7 @@ This repository contains a **Streamlit** application that demonstrates a governe
 2. **Silver Layer** – Deterministic cleaning and semantic chunking.
 3. **Gold Layer** – Vector embeddings (Google Gemini `text-embedding-004`) with trust‑based retrieval.
 
-The UI includes a left‑hand sidebar where you can:
-- See the publisher/author information.
-- Access your LinkedIn profile and personal website.
+The UI includes a left‑hand sidebar where you can configure the application:
 - Get quick instructions on how to obtain a **Google Gemini API Key**.
 
 ## Prerequisites
