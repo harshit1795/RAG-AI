@@ -17,46 +17,8 @@ st.set_page_config(
 )
 
 # --------------------------------------------------------
-# BACKGROUND IMAGE SETUP
+# SIDEBAR IMAGE STYLING (removed rotations - using original orientation)
 # --------------------------------------------------------
-def get_base64_image(image_path):
-    """Convert image to base64 for CSS embedding"""
-    with open(image_path, "rb") as img_file:
-        return base64.b64encode(img_file.read()).decode()
-
-# Add background image styling with hover effect
-bg_image_path = Path("Asstes/Delicate Arch landscape with moonlight.JPG")
-if bg_image_path.exists():
-    bg_image_base64 = get_base64_image(bg_image_path)
-    st.markdown(
-        f"""
-        <style>
-        .stApp {{
-            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), 
-                              url("data:image/jpg;base64,{bg_image_base64}");
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            transition: background-image 0.3s ease-in-out;
-        }}
-        
-        .stApp:hover {{
-            background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), 
-                              url("data:image/jpg;base64,{bg_image_base64}");
-        }}
-        
-        /* Rotate sidebar image 90 degrees clockwise and make it smaller */
-        .stImage img {{
-            transform: rotate(90deg) scale(0.6);
-            transition: transform 0.3s ease;
-            max-width: 60%;
-            margin: auto;
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
 
 # Sidebar - Publisher & Configuration
 with st.sidebar:
@@ -73,6 +35,11 @@ with st.sidebar:
         st.markdown("Harshit Gola is a data architect focusing on governed RAG pipelines. He builds AI‑enhanced solutions that combine enterprise data governance with large language models.")
 
     with st.expander("⚙️ Configuration & Settings", expanded=True):
+        # Add landscape background image at the top of configuration
+        landscape_image_path = Path("Asstes/Delicate Arch landscape with moonlight.JPG")
+        if landscape_image_path.exists():
+            st.image(str(landscape_image_path), use_container_width=True, caption="Delicate Arch - Moonlight")
+        
         st.markdown("#### 🔑 Authentication")
         st.markdown("*To obtain a Google Gemini API Key, visit the [Google AI Studio](https://ai.google.dev/) and follow the instructions under **\"Get API key\"**. After creating a project, copy the generated key and paste it below.*")
         api_key = st.text_input("Enter Google Gemini API Key:", type="password")
